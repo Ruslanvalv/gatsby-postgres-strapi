@@ -1,0 +1,45 @@
+version: "3"
+services:
+  gatsby:
+    build:
+      context: ./gatsby
+      dockerfile: ./Dockerfile
+    volumes:
+      - /gatsby/node_modules
+      - ./gatsby/src:/app/src 
+    ports:
+      - "8000:8000"
+    depends_on:
+      - strapi
+      - postgres
+    environment:
+      GATSBY_WEBPACK_PUBLICPATH: /
+      STRAPI_URL: strapi:1337
+    
+
+        
+  strapi:
+    image: strapi/strapi
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_NAME: strapi
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: strapi
+    volumes:
+      - /gatsby/node_modules
+      - ./app:/srv/app
+    ports:
+      - '1337:1337'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: strapi
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+    volumes:
+      - ./data:/var/lib/postgresql/data
